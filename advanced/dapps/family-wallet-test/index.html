@@ -13,11 +13,26 @@
       pre { background: #f3f3f3; padding: 8px; border-radius: 6px; white-space: pre-wrap; word-break: break-all; font-size: 12px; max-height: 260px; overflow: auto; }
       .muted { color: #666; font-size: 13px; }
       a { word-break: break-all; }
+      .chains label { margin-right: 16px; cursor: pointer; }
+      .field { display: block; margin: 8px 0; }
+      .field > span:first-child { display: block; font-size: 13px; margin-bottom: 4px; }
+      .field input { width: 100%; box-sizing: border-box; padding: 8px; font: inherit; border: 1px solid #ccc; border-radius: 6px; }
+      .row { display: flex; gap: 8px; align-items: center; }
+      .row input { flex: 1; }
     </style>
   </head>
   <body>
     <h1>Family Wallet Test dApp</h1>
     <p class="muted" id="env"></p>
+
+    <section>
+      <h2>Chain</h2>
+      <div class="chains">
+        <label><input type="radio" name="chain" value="ton" checked /> TON</label>
+        <label><input type="radio" name="chain" value="bsc" /> BSC</label>
+      </div>
+      <p class="muted">The selected chain is used for the account view, signing and sending. Switching also switches the AppKit network.</p>
+    </section>
 
     <section>
       <h2>1. Connect</h2>
@@ -35,7 +50,18 @@
       <h2>2. Account</h2>
       <pre id="account">Not connected</pre>
       <button id="sign" disabled>Sign data</button>
-      <button id="send" disabled>Send 0.01 TON</button>
+    </section>
+
+    <section>
+      <h2>3. Send transaction</h2>
+      <form id="send-form">
+        <label class="field"><span>Recipient</span><input id="to" autocomplete="off" spellcheck="false" /></label>
+        <label class="field"><span>Amount</span>
+          <span class="row"><input id="amount" inputmode="decimal" value="0.01" required /><b id="amount-unit">TON</b></span>
+        </label>
+        <button id="send" type="submit" disabled>Send</button>
+      </form>
+      <p class="muted" id="send-hint"></p>
     </section>
 
     <section>
