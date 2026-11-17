@@ -1,0 +1,24 @@
+{
+  "name": "family-wallet-test",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc && vite build",
+    "preview": "vite preview --host"
+  },
+  "dependencies": {
+    "@reown/appkit": "1.8.24",
+    "@reown/appkit-adapter-ton": "1.8.24"
+  },
+  "devDependencies": {
+    "typescript": "5.8.3",
+    "vite": "6.3.5"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}
