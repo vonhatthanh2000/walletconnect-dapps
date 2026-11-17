@@ -1,6 +1,6 @@
 # Family Wallet Test dApp
 
-Test dApp for the Family Wallet WalletConnect bridge deep link. It uses AppKit `1.8.24` with the TON adapter for TON testnet, plus BSC (testnet by default) through AppKit's built-in universal adapter. Pick the chain with the **TON / BSC** selector.
+Test dApp for the Family Wallet WalletConnect bridge deep link. It uses AppKit `1.8.24` with the TON adapter for TON testnet, plus BSC (testnet by default) through the Ethers (EVM) adapter. Pick the chain with the **TON / BSC** selector.
 
 It lists **Family Wallet** as a custom wallet with both `mobile_link` and `desktop_link` set to
 `https://<API host>/walletconnect-bridge/`, so:

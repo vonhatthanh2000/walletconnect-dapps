@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@reown/appkit": "1.8.24",
-    "@reown/appkit-adapter-ton": "1.8.24"
+    "@reown/appkit-adapter-ethers": "1.8.24",
+    "@reown/appkit-adapter-ton": "1.8.24",
+    "ethers": "^6.17.0"
   },
   "devDependencies": {
     "typescript": "5.8.3",

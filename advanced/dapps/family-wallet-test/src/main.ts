@@ -6,6 +6,7 @@ import {
   type AppKitNetwork
 } from '@reown/appkit/networks'
 import { TonAdapter } from '@reown/appkit-adapter-ton'
+import { EthersAdapter } from '@reown/appkit-adapter-ethers'
 
 // Cast: AppKit 1.8.24 pulls two viem versions, which makes the network type mismatch at compile time only.
 const tonTestnet = tonTestnetChain as typeof tonTestnetChain & AppKitNetwork
@@ -52,10 +53,11 @@ $('env').textContent = missing.length
   ? `Missing env: ${missing.join(', ')}. Copy .env.example to .env and fill it in.`
   : `Bridge: ${BRIDGE_LINK} · Bot: @${BOT} · Networks: ${tonTestnet.name} (${tonTestnet.caipNetworkId}), ${bscNet.name} (${BSC_CAIP})`
 
-// No EVM adapter installed: AppKit uses its built-in UniversalAdapter for eip155,
-// so BSC requests go straight through the WalletConnect universal provider.
+// Every namespace needs an adapter: once `adapters` is set, AppKit only registers
+// those namespaces, so without an eip155 adapter connecting on BSC fails with
+// "Adapter not found". Requests below still go through the universal provider.
 const appKit = createAppKit({
-  adapters: [new TonAdapter()],
+  adapters: [new TonAdapter(), new EthersAdapter()],
   networks: [tonTestnet as AppKitNetwork, bscNet],
   defaultNetwork: tonTestnet as AppKitNetwork,
   projectId: PROJECT_ID,
