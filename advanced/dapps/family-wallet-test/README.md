@@ -29,7 +29,7 @@ cp .env.example .env   # then fill in the values
 | `VITE_BSC_TOKEN` | no | Default ERC-20 address for the token panel |
 | `VITE_BSC_RPC` | no | BSC read RPC for token info and gas price (default: public BNB Chain RPC) |
 
-The wallet and dApp icon is served from `public/walletkit-icon.png`.
+Icons are served from `public/`: `dapp-icon.png` is the dApp's own icon (shown by the wallet on its connect and request screens), `walletkit-icon.png` is Family Wallet's icon in the dApp's wallet list. The wallet must reach the dApp icon over http(s) from the phone, so test through the HTTPS tunnel, not `localhost`.
 In the WalletConnect Dashboard (this dApp's project), add the domain you serve the page from to **Allowed domains**.
 
 ## Run and test

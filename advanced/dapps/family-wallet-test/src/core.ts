@@ -48,8 +48,11 @@ export const missingEnv = Object.entries({
 
 // Trailing slash matters: AppKit appends `wc?uri=<encoded wc: URI>`.
 export const BRIDGE_LINK = `${API_ORIGIN}/walletconnect-bridge/`
-// Served by Vite from public/walletkit-icon.png
-export const ICON_URL = `${window.location.origin}/walletkit-icon.png`
+// Served by Vite from public/. Two icons so testers can tell the dApp from the wallet.
+// The dApp's own icon: shown by the wallet on its connect / request sheets.
+export const DAPP_ICON_URL = `${window.location.origin}/dapp-icon.png`
+// Family Wallet's icon in our wallet list.
+export const WALLET_ICON_URL = `${window.location.origin}/walletkit-icon.png`
 
 export const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T
 export const input = (id: string) => $<HTMLInputElement>(id)
@@ -82,7 +85,7 @@ const metadata = {
   name: 'Family Wallet Test dApp',
   description: 'Deep-link test for the Family Wallet bridge',
   url: window.location.origin,
-  icons: [ICON_URL]
+  icons: [DAPP_ICON_URL]
 }
 // Where the wallet sends the user back after an answer (§6.6). Must be https on the same host as metadata.url.
 export const REDIRECT_URL = `${window.location.origin}/?back=1`
@@ -111,7 +114,7 @@ export async function initCore() {
         id: 'family-wallet',
         name: 'Family Wallet',
         homepage: `https://t.me/${BOT}`,
-        image_url: ICON_URL,
+        image_url: WALLET_ICON_URL,
         // Phone browser: AppKit opens `${mobile_link}wc?uri=...`
         mobile_link: BRIDGE_LINK,
         // Desktop browser: AppKit opens `${desktop_link}wc?uri=...` in a new tab
