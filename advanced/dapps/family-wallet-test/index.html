@@ -19,6 +19,13 @@
       .field input { width: 100%; box-sizing: border-box; padding: 8px; font: inherit; border: 1px solid #ccc; border-radius: 6px; }
       .row { display: flex; gap: 8px; align-items: center; }
       .row input { flex: 1; }
+      .row .field { flex: 1; }
+      .msg-row { display: grid; grid-template-columns: 1fr 90px 1fr auto; gap: 6px; margin: 6px 0; }
+      .msg-row input { min-width: 0; padding: 8px; font: inherit; border: 1px solid #ccc; border-radius: 6px; }
+      @media (max-width: 560px) { .msg-row { grid-template-columns: 1fr 1fr; } }
+      textarea { width: 100%; box-sizing: border-box; min-height: 160px; font: 12px ui-monospace, monospace; padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
+      select { padding: 6px; font: inherit; }
+      [hidden] { display: none !important; }
     </style>
   </head>
   <body>
@@ -47,21 +54,110 @@
     </section>
 
     <section>
-      <h2>2. Account</h2>
-      <pre id="account">Not connected</pre>
-      <button id="sign" disabled>Sign data</button>
+      <h2>Session</h2>
+      <p class="muted"><b id="session-status">No session</b> <span id="session-bsc" hidden>· BSC not in session (the wallet had no working BSC RPC; reconnect to get it)</span></p>
+      <pre id="session">No session</pre>
+      <p class="muted">Topic, approved namespaces, <code>sessionProperties</code> (<code>ton_getPublicKey</code>, <code>ton_getStateInit</code>) and expiry. Switching the wallet index, recovering another wallet or changing the TON environment disconnects (<code>session_delete</code>).</p>
     </section>
 
     <section>
-      <h2>3. Send transaction</h2>
-      <form id="send-form">
-        <label class="field"><span>Recipient</span><input id="to" autocomplete="off" spellcheck="false" /></label>
+      <h2>2. Account</h2>
+      <pre id="account">Not connected</pre>
+    </section>
+
+    <section data-chain="ton">
+      <h2>TON · Sign data</h2>
+      <label class="field"><span>Text</span><input id="ton-text" autocomplete="off" /></label>
+      <button id="ton-sign-text" data-needs-account disabled>Sign text</button>
+      <label class="field"><span>Binary: text to encode (UTF-8 → base64), or raw base64 below</span><input id="ton-binary-text" autocomplete="off" /></label>
+      <label class="field"><span>Raw base64 (used if filled)</span><input id="ton-bytes" autocomplete="off" spellcheck="false" /></label>
+      <button id="ton-sign-binary" data-needs-account disabled>Sign binary</button>
+      <button id="ton-sign-cell" data-needs-account disabled>Sign cell (expect refusal)</button>
+      <p class="muted">Sends <code>ton_signData</code>. After a signature, the dApp rebuilds the signed bytes and verifies them with <code>ton_getPublicKey</code> from the session.</p>
+    </section>
+
+    <section data-chain="ton">
+      <h2>TON · Send (1–4 messages)</h2>
+      <div id="ton-rows"></div>
+      <button id="ton-add-row" type="button">+ Add message</button>
+      <button id="ton-send" data-needs-account disabled>Send</button>
+      <p class="muted">One <code>ton_sendMessage</code> with every row as a message, <code>valid_until</code> = now + 300. A comment becomes a text payload BOC.</p>
+    </section>
+
+    <section data-chain="ton">
+      <h2>TON · Jetton transfer</h2>
+      <label class="field"><span>Your jetton wallet address</span><input id="jt-wallet" autocomplete="off" spellcheck="false" /></label>
+      <label class="field"><span>Destination (owner address)</span><input id="jt-to" autocomplete="off" spellcheck="false" /></label>
+      <span class="row"><label class="field"><span>Amount</span><input id="jt-amount" inputmode="decimal" value="1" /></label>
+      <label class="field"><span>Decimals</span><input id="jt-decimals" inputmode="numeric" value="9" /></label></span>
+      <button id="jt-send" data-needs-account disabled>Send jetton</button>
+      <p class="muted">One message to your jetton wallet with 0.05 TON attached and a transfer payload (op <code>0x0f8a7ea5</code>, response to your address).</p>
+    </section>
+
+    <section data-chain="bsc" hidden>
+      <h2>BSC · Sign</h2>
+      <label class="field"><span>Message</span><input id="bsc-text" autocomplete="off" /></label>
+      <button id="bsc-sign" data-needs-account disabled>personal_sign</button>
+      <button id="bsc-typed-mail" data-needs-account disabled>Typed data (Mail)</button>
+      <button id="bsc-typed-permit" data-needs-token disabled>Typed data (Permit)</button>
+      <p class="muted">Signatures are checked locally (<code>verifyMessage</code> / <code>verifyTypedData</code>) against the connected address. Permit uses the token, spender and amount from the token panel, <code>deadline</code> = now + 3600.</p>
+    </section>
+
+    <section data-chain="bsc" hidden>
+      <h2>BSC · Send native</h2>
+      <form id="bsc-send-form">
+        <label class="field"><span>Recipient</span><input id="bsc-to" placeholder="0x… (BSC address)" autocomplete="off" spellcheck="false" /></label>
         <label class="field"><span>Amount</span>
-          <span class="row"><input id="amount" inputmode="decimal" value="0.01" required /><b id="amount-unit">TON</b></span>
+          <span class="row"><input id="bsc-amount" inputmode="decimal" value="0.001" required /><b id="bsc-amount-unit">tBNB</b></span>
         </label>
-        <button id="send" type="submit" disabled>Send</button>
+        <button type="submit" data-needs-account disabled>Send</button>
       </form>
-      <p class="muted" id="send-hint"></p>
+      <p class="muted" id="bsc-send-hint"></p>
+    </section>
+
+    <section data-chain="bsc" hidden>
+      <h2>BSC · Token actions</h2>
+      <label class="field"><span>Token (ERC-20) address</span>
+        <span class="row"><input id="bsc-token" placeholder="0x…" autocomplete="off" spellcheck="false" /><button id="bsc-token-load" data-needs-account disabled>Load</button></span>
+      </label>
+      <p class="muted" id="bsc-token-info">Not loaded</p>
+      <label class="field"><span>Recipient (transfer)</span><input id="bsc-tk-to" placeholder="0x…" autocomplete="off" spellcheck="false" /></label>
+      <label class="field"><span>Spender / operator</span><input id="bsc-tk-spender" placeholder="0x…" autocomplete="off" spellcheck="false" /></label>
+      <label class="field"><span>Amount (token units)</span><input id="bsc-tk-amount" inputmode="decimal" value="1" /></label>
+      <button id="bsc-tk-transfer" data-needs-token disabled>Transfer</button>
+      <button id="bsc-tk-approve" data-needs-token disabled>Approve (amount)</button>
+      <button id="bsc-tk-approve-max" data-needs-account disabled>Approve unlimited</button>
+      <button id="bsc-tk-approve-all" data-needs-account disabled>setApprovalForAll</button>
+      <button id="bsc-tk-fail" data-needs-token disabled>Transfer above balance (likely to fail)</button>
+      <p class="muted">Calldata goes to the token address with <code>value: 0x0</code>. Approve unlimited and setApprovalForAll need no Load.</p>
+    </section>
+
+    <section data-chain="bsc" hidden>
+      <h2>BSC · dApp-supplied tx fields</h2>
+      <label><input type="checkbox" id="bsc-x-gas" /> <code>gas: 0x30d40</code></label><br />
+      <label><input type="checkbox" id="bsc-x-gasprice" /> <code>gasPrice</code> = network price × 2</label><br />
+      <label><input type="checkbox" id="bsc-x-nonce" /> stale <code>nonce: 0x0</code></label>
+      <p class="muted">Applies to every BSC send above. The wallet uses max(dApp gas, estimate) and ignores the dApp nonce; compare the logged params with the sheet.</p>
+    </section>
+
+    <section>
+      <h2>Break the request</h2>
+      <div id="breakers" class="chains"></div>
+      <p class="muted">Applied to every request the TON / BSC panels above send, until unchecked (not the raw panel). The log lists the applied toggles. Test one at a time: with several on, the wallet's first failing check wins.</p>
+    </section>
+
+    <section>
+      <h2>Raw request</h2>
+      <label class="field"><span>Preset</span><select id="raw-preset" style="width:100%"></select></label>
+      <p class="muted" id="raw-expect"></p>
+      <span class="row">
+        <label class="field"><span>Method</span><input id="raw-method" autocomplete="off" spellcheck="false" placeholder="ton_signData" /></label>
+        <label class="field"><span>Chain</span><select id="raw-chain"></select> <input id="raw-caip" placeholder="eip155:1" autocomplete="off" spellcheck="false" /></label>
+      </span>
+      <label class="field"><span>Params (JSON)</span><textarea id="raw-params" spellcheck="false"></textarea></label>
+      <p class="muted" id="raw-error" style="color:#b00"></p>
+      <button id="raw-send">Send raw</button>
+      <p class="muted">Sent as-is, even outside the session, so local SDK answers show too. eip155 methods outside AppKit's requested list go to the RPC node, not the wallet.</p>
     </section>
 
     <section>
